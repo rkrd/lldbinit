@@ -104,6 +104,7 @@ CONFIG_DISPLAY_STACK_WINDOW = 0
 CONFIG_DISPLAY_FLOW_WINDOW = 1
 CONFIG_ENABLE_REGISTER_SHORTCUTS = 1
 CONFIG_DISPLAY_DATA_WINDOW = 0
+CONFIG_DISABLED_LLDBINIT = 0
 
 # removes the offsets and modifies the module name position
 # reference: https://lldb.llvm.org/formats.html
@@ -436,12 +437,14 @@ Available settings:
  stackwin: enable stack window in context display.
  datawin: enable data window in context display, configure address with datawin.
  flow: call targets and objective-c class/methods.
+ lldbinit: enable lldbinit stop hook
  """
 
     global CONFIG_ENABLE_COLOR
     global CONFIG_DISPLAY_STACK_WINDOW
     global CONFIG_DISPLAY_FLOW_WINDOW
     global CONFIG_DISPLAY_DATA_WINDOW
+    global CONFIG_DISABLED_LLDBINIT
 
     cmd = command.split()
     if len(cmd) == 0:
@@ -468,6 +471,9 @@ Available settings:
     elif cmd[0] == "datawin":
         CONFIG_DISPLAY_DATA_WINDOW = 1
         print "[+] Enabled data window in context display. Configure address with \'datawin\' cmd."
+    elif cmd[0] == "lldbinit":
+        CONFIG_DISABLED_LLDBINIT = 0
+        print "[+] Enabled lldbinit printout."
     elif cmd[0] == "help":
         print help
     else:
@@ -490,12 +496,14 @@ Available settings:
  stackwin: disable stack window in context display.
  datawin: enable data window in context display.
  flow: call targets and objective-c class/methods.
+ lldbinit: disable lldbinit stop hook
  """
 
     global CONFIG_ENABLE_COLOR
     global CONFIG_DISPLAY_STACK_WINDOW
     global CONFIG_DISPLAY_FLOW_WINDOW
     global CONFIG_DISPLAY_DATA_WINDOW
+    global CONFIG_DISABLED_LLDBINIT
 
     cmd = command.split()
     if len(cmd) == 0:
@@ -522,6 +530,9 @@ Available settings:
     elif cmd[0] == "datawin":
         CONFIG_DISPLAY_DATA_WINDOW = 0
         print "[+] Disabled data window in context display."
+    elif cmd[0] == "lldbinit":
+        CONFIG_DISABLED_LLDBINIT = 1
+        print "[+] Disabled lldbinit printout."
     elif cmd[0] == "help":
         print help
     else:
@@ -4220,6 +4231,10 @@ def HandleHookStopOnTarget(debugger, command, result, dict):
     global arm_type
     global CONFIG_DISPLAY_STACK_WINDOW
     global CONFIG_DISPLAY_FLOW_WINDOW
+    global CONFIG_DISABLED_LLDBINIT
+
+    if CONFIG_DISABLED_LLDBINIT == 1:
+        return
 
     debugger.SetAsync(True)
 
